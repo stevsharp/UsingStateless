@@ -1,4 +1,4 @@
-UsingStateless
+# Using Stateless
 This repository contains an example of using the Stateless library in a C# application to implement a simple state machine.
 
 Overview
