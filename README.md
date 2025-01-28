@@ -24,7 +24,7 @@ The application simulates an order processing system, where an order must go thr
 
 ## Prerequisites
 
-- [.NET 6 or later](https://dotnet.microsoft.com/download)
+- [.NET 8 or later](https://dotnet.microsoft.com/download)
 - SQLite (optional, for database inspection)
 
 ---
@@ -131,7 +131,7 @@ Order 2 is now in state: Completed
 
 ## Technologies Used
 
-- [.NET 6](https://dotnet.microsoft.com/)
+- [.NET 9](https://dotnet.microsoft.com/)
 - [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
 - [Stateless](https://github.com/dotnet-state-machine/stateless)
 - SQLite
