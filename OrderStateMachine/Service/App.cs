@@ -78,20 +78,44 @@ namespace OrderStateMachine.Service
         {
             var stateMachine = new StateMachine<OrderState, OrderTrigger>(order.State);
 
-            // Configure state transitions
+            // Configure state transitions with logging
             stateMachine.Configure(OrderState.PendingDeposit)
-                .Permit(OrderTrigger.MakeDeposit, OrderState.ReviewingDocuments);
+                .Permit(OrderTrigger.MakeDeposit, OrderState.ReviewingDocuments)
+                .OnEntry(() => LogStateEntry(OrderState.PendingDeposit, "Waiting for deposit to be made."))
+                .OnExit(() => LogStateExit(OrderState.PendingDeposit, "Deposit received, moving to document review."));
 
             stateMachine.Configure(OrderState.ReviewingDocuments)
-                .Permit(OrderTrigger.ReviewDocuments, OrderState.ApprovingOrder);
+                .Permit(OrderTrigger.ReviewDocuments, OrderState.ApprovingOrder)
+                .OnEntry(() => LogStateEntry(OrderState.ReviewingDocuments, "Reviewing submitted documents."))
+                .OnExit(() => LogStateExit(OrderState.ReviewingDocuments, "Documents reviewed, moving to order approval."));
 
             stateMachine.Configure(OrderState.ApprovingOrder)
-                .Permit(OrderTrigger.ApproveOrder, OrderState.Completed);
+                .Permit(OrderTrigger.ApproveOrder, OrderState.Completed)
+                .OnEntry(() => LogStateEntry(OrderState.ApprovingOrder, "Approving the order."))
+                .OnExit(() => LogStateExit(OrderState.ApprovingOrder, "Order approved, moving to completed state."));
 
             stateMachine.Configure(OrderState.Completed)
-                .OnEntry(() => Console.WriteLine("Order process completed."));
+                .OnEntry(() => LogStateEntry(OrderState.Completed, "Order process completed successfully."))
+                .OnExit(() => LogStateExit(OrderState.Completed, "Order finalized."));
 
             return stateMachine;
+        }
+
+        // Helper method to log state entry
+        private void LogStateEntry(OrderState state, string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"[Entry] State: {state}, Message: {message}");
+            Console.ResetColor();
+
+        }
+
+        // Helper method to log state exit
+        private void LogStateExit(OrderState state, string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"[Exit] State: {state}, Message: {message}");
+            Console.ResetColor();
         }
 
         private async Task TryCompleteStepAsync(Order order, Step step, StateMachine<OrderState, OrderTrigger> stateMachine)
