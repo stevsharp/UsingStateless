@@ -45,3 +45,7 @@ Contributions to this repository are welcome! If you have any suggestions, impro
 
 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Connect with Me
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue)](https://www.linkedin.com/in/spyros-ponaris-913a6937/)
