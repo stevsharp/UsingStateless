@@ -1,6 +1,7 @@
 ﻿
 
 using Microsoft.EntityFrameworkCore;
+
 using OrderStateMachine.Model;
 
 namespace OrderStateMachine.Service;
@@ -17,18 +18,46 @@ public class OrderService(ApplicationDbContext context) : IOrderService
             OrderDate = DateTime.UtcNow,
             State = OrderState.PendingDeposit,
             Steps =
-            [   
-                new Step { Name = "Make Deposit", StepOrder = 1, IsCompleted = false },
-                new Step { Name = "Review Documents", StepOrder = 2, IsCompleted = false },
-                new Step { Name = "Approve Order", StepOrder = 3, IsCompleted = false }
-            ]
+        [
+            new Step
+            {
+                Name = "Make Deposit",
+                StepOrder = 1,
+                IsCompleted = false,
+                Comments =
+                [
+                    new Comment { Content = "Deposit required to start the process.", CreatedAt = DateTime.UtcNow }
+                ]
+            },
+            new Step
+            {
+                Name = "Review Documents",
+                StepOrder = 2,
+                IsCompleted = false,
+                Comments =
+                [
+                    new Comment { Content = "Customer needs to submit all documents.", CreatedAt = DateTime.UtcNow }
+                ]
+            },
+            new Step
+            {
+                Name = "Approve Order",
+                StepOrder = 3,
+                IsCompleted = false,
+                Comments =
+                [
+                    new Comment { Content = "Final approval is required from the manager.", CreatedAt = DateTime.UtcNow }
+                ]
+            }
+        ]
         };
 
         _context.Orders.Add(order);
-
+        
         await _context.SaveChangesAsync();
-
+        
         return order.Id;
+
     }
 
     public async Task<List<Order>> GetAllOrdersAsync()
