@@ -1,51 +1,171 @@
-# Using Stateless
-This repository contains an example of using the Stateless library in a C# application to implement a simple state machine.
+# State Machine Workflow with EF Core and Stateless
 
-Overview
-Stateless is a lightweight library that provides a simple way to implement state machines in C#. It allows you to define states, triggers, and transitions between states, making it easy to manage the state of an object or system.
+This project demonstrates a console application that uses:
 
-In this example, we demonstrate how to use the Stateless library to implement a state machine for a fictional scenario. The state machine transitions between various states based on predefined triggers and conditions.
+- **Entity Framework Core** for database interactions (with SQLite).
+- **Stateless** for implementing a state machine workflow.
+- **Dependency Injection** for managing services.
 
-Features
-Lightweight and easy-to-use library for implementing state machines in C#.
-Define states, triggers, and transitions using a fluent API.
-Support for guards to conditionally allow or deny transitions.
-Integration with .NET Core and .NET Framework applications.
-Getting Started
-To get started with using the example in this repository:
+The application simulates an order processing system, where an order must go through predefined steps before completion. It includes error handling for invalid transitions and ensures steps are processed in order.
 
-Clone the repository:
+---
 
-bash
-Copy code
-git clone https://github.com/stevsharp/UsingStateless.git
-Open the solution in your preferred IDE (e.g., Visual Studio, Visual Studio Code).
+## Features
 
-Build and run the application to see the state machine in action.
+- **State Machine Workflow**: Uses the Stateless library to enforce state transitions.
+- **Step Management**: Each order has multiple steps that must be completed sequentially.
+- **Dependency Injection**: Follows modern .NET best practices.
+- **SQLite Database**: Stores orders, steps, and state transitions.
+- **Scenarios**:
+  - **Happy Path**: All steps completed in order.
+  - **Error Path**: Attempts to skip steps trigger validation errors.
 
-Example Scenario
-The example scenario implemented in this repository involves a simple state machine for a traffic light system. The traffic light can be in one of the following states: Green, Yellow, or Red. Transitions between states occur based on predefined triggers such as TimerExpired or ManualOverride.
+---
 
-Usage
-To use the state machine in your own projects:
+## Prerequisites
 
-Add the Stateless library to your project using NuGet:
+- [.NET 6 or later](https://dotnet.microsoft.com/download)
+- SQLite (optional, for database inspection)
 
-bash
-Copy code
-dotnet add package Stateless
-Define your states, triggers, and transitions using the StateMachine class provided by the Stateless library.
+---
 
-Configure guards and actions for transitions as needed to control the behavior of your state machine.
+## Setup Instructions
 
-Use the state machine to manage the state of your objects or systems based on external events and conditions.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/state-machine-workflow.git
+   cd state-machine-workflow
+   ```
 
-Contributing
-Contributions to this repository are welcome! If you have any suggestions, improvements, or new features to add, feel free to open an issue or create a pull request.
+2. Restore dependencies:
+   ```bash
+   dotnet restore
+   ```
 
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+3. Apply migrations to create the SQLite database:
+   ```bash
+   dotnet ef database update
+   ```
 
-## Connect with Me
+4. Run the application:
+   ```bash
+   dotnet run
+   ```
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue)](https://www.linkedin.com/in/spyros-ponaris-913a6937/)
+---
+
+## Project Structure
+
+- `App.cs`: Entry point for the console application, handles scenarios.
+- `OrderService.cs`: Manages order and step processing.
+- `ApplicationDbContext.cs`: Configures EF Core with SQLite.
+- `Models`:
+  - `Order`, `Step`, and `Comment`: Represent the data structure.
+  - `OrderState` and `OrderTrigger`: Enum definitions for states and triggers.
+- `Program.cs`: Configures the application host and dependency injection.
+
+---
+
+## Usage
+
+### Happy Scenario: Completing Steps in Order
+
+1. Creates a new order with predefined steps:
+   - `Make Deposit`
+   - `Review Documents`
+   - `Approve Order`
+
+2. Completes the steps in the correct order.
+
+#### Output Example:
+
+```
+=== Happy Scenario: Completing Steps in Order ===
+Order 1 created successfully!
+Processing step: Make Deposit
+Order is now in state: ReviewingDocuments
+Processing step: Review Documents
+Order is now in state: ApprovingOrder
+Processing step: Approve Order
+Order is now in state: Completed
+Order 1 is now in state: Completed
+```
+
+### Error Scenario: Skipping Steps
+
+1. Attempts to skip `Make Deposit` and go directly to `Review Documents`.
+2. Displays an error and processes the steps in the correct order.
+
+#### Output Example:
+
+```
+=== Bad Scenario: Trying to Complete Steps Out of Order ===
+Order 2 created successfully!
+Step 'Review Documents' cannot be completed because previous steps are not completed.
+Processing step: Make Deposit
+Order is now in state: ReviewingDocuments
+Processing step: Review Documents
+Order is now in state: ApprovingOrder
+Processing step: Approve Order
+Order is now in state: Completed
+Order 2 is now in state: Completed
+```
+
+---
+
+## How It Works
+
+1. **State Machine**:
+   - Configures transitions between states (`PendingDeposit`, `ReviewingDocuments`, `ApprovingOrder`, `Completed`).
+   - Validates transitions using triggers (`MakeDeposit`, `ReviewDocuments`, `ApproveOrder`).
+
+2. **Step Validation**:
+   - Ensures steps are completed sequentially.
+   - Skipping steps triggers validation errors.
+
+3. **Database Integration**:
+   - Uses EF Core to persist orders and steps.
+   - SQLite as the database provider.
+
+---
+
+## Technologies Used
+
+- [.NET 6](https://dotnet.microsoft.com/)
+- [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
+- [Stateless](https://github.com/dotnet-state-machine/stateless)
+- SQLite
+
+---
+
+## Troubleshooting
+
+### Migration Issues
+
+- **Error**: "No such table: Orders"
+  - Ensure migrations are applied:
+    ```bash
+    dotnet ef database update
+    ```
+  - Delete the `app.db` file and reapply migrations if necessary.
+
+### Dependency Issues
+
+- Ensure required NuGet packages are installed:
+  ```bash
+  dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+  dotnet add package Stateless
+  ```
+
+---
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
